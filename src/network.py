@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import tensorflow as tf
-from tf.contrib import slim 
+from tensorflow.contrib import slim 
 
 from memory import Replay_Buffer
 
