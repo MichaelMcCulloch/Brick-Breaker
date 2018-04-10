@@ -14,16 +14,16 @@ try:
     # Send data
     message = 'This is the message.  It will be repeated.'
     print('sending "%s"' % message)
-    sock.sendall(message)
+    sock.sendall(message.encode())
 
     # Look for the response
     amount_received = 0
     amount_expected = len(message)
     
     while amount_received < amount_expected:
-        data = sock.recv(16)
+        data = sock.recv(160)
         amount_received += len(data)
-        print('received "%s"' % data)
+        print('received "%s"' % data.decode())
 
 finally:
     print('closing socket')
