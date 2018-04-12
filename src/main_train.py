@@ -23,18 +23,18 @@ def chunks(l, n):
 
 def mix_pop(population):
     '''
-        gather all population into root node
+        gather() population into root node
         shuffle population
         scatter population
     '''
-    #make transmittable dict
     dict_pop = population
-    #transmit
+    
     all_pop = COMM.gather(dict_pop, root = 0)
     if rank == 0:
-        #remove dict status and shuffle
+        #flatten gathered list of lists
         all_pop = [b for val in all_pop for b in val]
         shuffle(all_pop)
+        #chunk it for transmission
         all_pop = list(chunks(all_pop, len(all_pop)//size))
     new_pop = COMM.scatter(all_pop, root = 0)
     return new_pop
