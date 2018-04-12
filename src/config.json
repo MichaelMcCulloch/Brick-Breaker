@@ -1,0 +1,20 @@
+{
+    "Genetic_Parameters": {
+        "Num_Hidden_Units_Range" : [32, 512],
+        "Max_Conv_Layers" : 4,
+        "Layer_KS_Limits" : [8, 4]
+    },
+    "Population_Size": 5,
+    "Generations": 25,
+    "Mix_Interval": 5,
+    "Mutation_Prob": 0.8,
+    "Memory_Max_Bytes" : 10e9,
+    "Short_Train" : 10e5,
+    "Long_Train" : 10e9,
+    "Recurrence" : {
+        "Batch_Size" : 32,
+        "Sequence_Length" : 8,
+        "Ignore_Up_To" : 4
+    },
+    "Episode_Length_Max" : 125
+}
