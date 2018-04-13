@@ -97,7 +97,7 @@ def mutate(individual):
     if r == 0 or r == 1:
         new_val = new_random(range, old_val)
     elif r == 2 or r == 3:
-        t = np.random.randint(0, len(old_val))
+        t = np.random.randint(0, new_member['Layer_Count']) 
         old_val[t] = new_random(range, old_val[t])
         new_val = old_val
 
