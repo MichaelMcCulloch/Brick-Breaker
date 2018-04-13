@@ -107,21 +107,19 @@ def mutate(individual):
 
 def cross(A, B):
 
-    r = np.random.randint(0x10, 0x1F)
-    bits = bin(r)
-
+    r = np.random.randint(0, 2, 4)
     new_A = A.copy()
     new_B = B.copy()
 
     # bits from right to left
     keys = list()
-    if (bits[3 + 0]):
+    if (r[0]):
         keys.append('Hidden_Unit_Size')
-    if (bits[3 + 1]):
+    if (r[1]):
         keys.append('Layer_Count')
-    if (bits[3 + 2]):
+    if (r[2]):
         keys.append('Kernel_Size')
-    if (bits[3 + 3]):
+    if (r[3]):
         keys.append('Stride_Length')
 
     for key in keys:
