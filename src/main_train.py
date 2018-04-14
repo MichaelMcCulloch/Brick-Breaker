@@ -27,6 +27,8 @@ def chunks(l, n):
 
 def mix_pop(population):
     # gather() population into root node
+
+
     all_pop = COMM.gather(population, root=0)
     if rank == 0:
         # flatten gathered list of lists
@@ -59,17 +61,22 @@ def make_population():
     rand_stride = np.reshape(rand_stride, [pop_size, -1])
     individuals = [{"Hidden_Unit_Size": h, "Layer_Count": l, "Kernel_Size": k, "Stride_Length": s}
                    for (h, l, k, s) in zip(rand_h_size, rand_layer_count, rand_kern, rand_stride)]
-    return list(zip(initial_fitness, individuals))
+    return np.asarray(list(zip(initial_fitness, individuals)))
 
 
 def roulette(population):
-    return np.random.choice(population)
-
+    max = sum([p[0] for p in population])
+    pick = np.random.uniform(0, max)
+    current = 0
+    for p in population:
+        current += p[0]
+        if current > pick:
+            return p
 
 def new_random(range, old):
     new = np.random.randint(range[0], range[1])
-    if new == old:
-        new = (new + 1) % range[1]
+    while new == old:
+        new = np.random.randint(range[0], range[1])
     return new
 
 
@@ -100,7 +107,7 @@ def mutate(individual):
         t = np.random.randint(0, new_member['Layer_Count']) 
         old_val[t] = new_random(range, old_val[t])
         new_val = old_val
-
+ 
     new_member.update({key: new_val})
     return new_member
 
@@ -131,24 +138,41 @@ def cross(A, B):
 
 
 def breed(gene_pool, target_size, p_mutate=0.8):
-    np.random.shuffle(gene_pool)
-    return [(None, h[1]) for h in gene_pool][0:target_size]
+
+    new_pop = []
+    gene_pool.sort(key=lambda p: p[0])
+    new_pop.append(gene_pool[-1]) #elitism
+    while len(new_pop) < target_size:
+        r = np.random.uniform()
+        if r < p_mutate:
+            succ = roulette(gene_pool)
+            mut = mutate(succ[1])
+            new_pop.append((None, mut))
+        else:
+            succ_A = roulette(gene_pool)
+            succ_B = roulette(gene_pool)
+            while succ_A == succ_B:
+                succ_B = roulette(gene_pool)
+            new_A, new_B = cross(succ_A[1], succ_B[1])
+            b = np.random.randint(0, 1)
+            new_pop.append((None, new_A)) if b == 0 else new_pop.append((None, new_B))
+    return new_pop
 
 
 if __name__ == '__main__':
 
     config = json.load(open("config.json"))
     env = Environment(config)
-    population = make_population()
-    print(population[1])
+    population = make_population()    
 
     for gen in range(config['Generations']):
+
         # Occasionally mix population among workers
         if gen != 0 and gen % config['Mix_Interval'] == 0:
             population = mix_pop(population)
 
         # generate a list of candidates
-        candidates = list()
+        candidates = []
         for individual in population:
             fitness = individual[0]
             traits = individual[1]
