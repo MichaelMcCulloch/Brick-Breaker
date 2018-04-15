@@ -3,7 +3,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 class Q_Learner:
-    def __init__(self, image_H, image_W, h_size, n_layer, k_dims, s_length, n_feat, n_act, scope, learning_rate = 0.001):
+    def __init__(self, image_H, image_W, h_size, n_layer, k_dims, s_length, n_outputs, n_feat, n_act, scope, learning_rate = 0.001):
         self.image_H = image_H
         self.image_W = image_W
         self.h_size = h_size
@@ -18,13 +18,13 @@ class Q_Learner:
         self.images         = tf.placeholder(tf.float32, shape=[None, None, self.image_H, self.image_W, 3], name='images')
         self.all_images = tf.reshape(self.images, [self.batch_size * self.trace_length, self.image_H, self.image_W, 3])
 
-        self._make_convolutional_layers(n_layer, k_dims, s_length)
+        self._make_convolutional_layers(n_layer, k_dims, s_length, n_outputs)
         exit()
         self._init_game_feat_out()
         self._init_LSTM()
         self._define_loss()
 
-    def _make_convolutional_layers(self, n_layer, k_dims, s_length, n_outputs = [32, 64, 128, 256]):
+    def _make_convolutional_layers(self, n_layer, k_dims, s_length, n_outputs):
         print(k_dims, s_length)
         self.layers = list()
         input_layer = slim.conv2d(

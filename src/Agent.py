@@ -3,15 +3,16 @@ import numpy as np
 from Network import Q_Learner
 
 class Agent():
-    def __init__(self, traits, env):
-        self.H_Size = traits['Hidden_Unit_Size']
-        self.Layer_Count = traits['Layer_Count']
-        self.Kernel_Size = traits['Kernel_Size'][0:self.Layer_Count]
-        self.Stride_Length = traits['Stride_Length'][0:self.Layer_Count]
+    def __init__(self, traits, env, config):
+        self.H_Size = traits[config.key_HUS]
+        self.Layer_Count = traits[config.key_LC]
+        self.Kernel_Size = traits[config.key_KS][0:self.Layer_Count]
+        self.Stride_Length = traits[config.key_SL][0:self.Layer_Count]
+        self.Num_Filter = traits[config.key_NF][0:self.Layer_Count]
 
         
-        self.mainQ      = Q_Learner(60, 408, self.H_Size, self.Layer_Count, self.Kernel_Size, self.Stride_Length, 1, 4, "MAIN")
-        self.targetQ    = Q_Learner(60, 408, self.H_Size, self.Layer_Count, self.Kernel_Size, self.Stride_Length, 1, 4, "MAIN")
+        self.mainQ      = Q_Learner(60, 408, self.H_Size, self.Layer_Count, self.Kernel_Size, self.Stride_Length,self.Num_Filter, 1, 4, "MAIN")
+        self.targetQ    = Q_Learner(60, 408, self.H_Size, self.Layer_Count, self.Kernel_Size, self.Stride_Length,self.Num_Filter, 1, 4, "MAIN")
 
     def train(self, episode_count):
         pass
