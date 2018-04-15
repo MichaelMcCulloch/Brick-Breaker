@@ -33,8 +33,10 @@ Share population among workers
 '''
 def mix_pop(population):
     # gather() population into root node
-
+    
     all_pop = COMM.gather(population, root=0)
+    
+    
     if rank == 0:
         # flatten gathered list of lists
         all_pop = [b for val in all_pop for b in val]
@@ -101,14 +103,6 @@ def roulette(population):
         current += p[0]
         if current > pick:
             return p
-
-
-def new_random(range, old):
-    print(range)
-    new = np.random.randint(range[0], range[1])
-    while new == old:
-        new = np.random.randint(range[0], range[1])
-    return new
 
 
 def mutate(individual):
@@ -197,14 +191,7 @@ def breed(gene_pool, target_size, p_mutate=0.8):
 
 
 if __name__ == '__main__':
-    '''
-    a = Agent({
-        "Hidden_Unit_Size": 300, 
-        "Layer_Count": 2, 
-        "Kernel_Size": [8, 8, 8, 2], 
-        "Stride_Length": [4,4,4,1]}, 
-        None)
-    '''
+
 
     config = Config("config.json")
     env = Environment(config)
@@ -229,11 +216,13 @@ if __name__ == '__main__':
                     continue
 
                 # creating an agent may fail if parameters suck!
-                #agent = Agent(traits, env, config)
-                #agent.train(episode_count=config.Short_Train)
-                #fitness = agent.evaluate()
+                
+                agent = Agent(env, config, **traits)
+                print("Created agent with", traits)
+                agent.train(episode_count=config.Short_Train)
+                fitness = agent.evaluate()
                 candidates.append((np.random.uniform(), traits))
-            print("BEFORE:", population)
+            
             population = breed(candidates, len(candidates),
                             p_mutate=config.Mutation_Prob)
                 
