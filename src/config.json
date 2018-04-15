@@ -1,8 +1,10 @@
 {
     "Genetic_Parameters": {
-        "Num_Hidden_Units_Range" : [32, 512],
-        "Max_Conv_Layers" : 4,
-        "Layer_KS_Limits" : [8, 4]
+        "Hidden_Unit_Range" : [32, 512],
+        "Conv_Layers_Max" : 4,
+        "Kernel_Size_Max" : 8,
+        "Stride_Length_Max" : 4,
+        "Num_Filter_Range" : [32, 512]
     },
     "Population_Size": 5,
     "Generations": 25,

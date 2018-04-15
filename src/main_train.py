@@ -8,6 +8,7 @@ import numpy as np
 import sys
 import json
 
+from Config import Config
 from Agent import Agent
 from Environment import Environment
 
@@ -46,17 +47,18 @@ def make_population():
     Assume config.json is mirrored across nodes
     '''
 
-    pop_size = config['Population_Size']
-    gene_param = config['Genetic_Parameters']
-    low_NHU, high_NHU = gene_param['Num_Hidden_Units_Range']
-    n_Layers = gene_param['Max_Conv_Layers']
-    kernel_max, stride_Max = gene_param['Layer_KS_Limits']
+    pop_size = config.Population_Size
+    low_NHU, high_NHU = config.Hidden_Unit_Range
+    n_Layers = config.Conv_Layers_Max
+    kernel_max = config.Kernel_Size_Max
+    stride_max = config.Stride_Length_Max
+    filter_range = config.Num_Filter_Range
 
     initial_fitness = np.repeat(None, pop_size)
     rand_h_size = np.random.randint(low_NHU, high_NHU, pop_size)
     rand_layer_count = np.random.randint(2, n_Layers+1, pop_size)
     rand_kern = np.random.randint(2, kernel_max+1, pop_size * n_Layers)
-    rand_stride = np.random.randint(2, stride_Max+1, pop_size * n_Layers)
+    rand_stride = np.random.randint(2, stride_max+1, pop_size * n_Layers)
     rand_kern = np.reshape(rand_kern, [pop_size, -1])
     rand_stride = np.reshape(rand_stride, [pop_size, -1])
     individuals = [{"Hidden_Unit_Size": h, "Layer_Count": l, "Kernel_Size": k, "Stride_Length": s}
@@ -85,19 +87,18 @@ def mutate(individual):
     new_member = individual.copy()
 
     r = np.random.randint(0, 4)
-    gene_config = config['Genetic_Parameters']
     if r == 0:
-        nhu = gene_config['Num_Hidden_Units_Range']
+        nhu = config.Num_Hidden_Units_Range
         range = [nhu[0], nhu[1]]
         key = "Hidden_Unit_Size"
     elif r == 1:
-        range = [2, gene_config['Max_Conv_Layers']]
+        range = [2, config.Conv_Layers_Max]
         key = "Layer_Count"
     elif r == 2:
-        range = [2, gene_config['Layer_KS_Limits'][0]]
+        range = [2, config.Kernel_Size_Max]
         key = "Kernel_Size"
     else:
-        range = [2, gene_config['Layer_KS_Limits'][1]]
+        range = [2, config.Stride_Length_Max]
         key = "Stride_Length"
 
     old_val = new_member[key]
@@ -160,15 +161,23 @@ def breed(gene_pool, target_size, p_mutate=0.8):
 
 
 if __name__ == '__main__':
+    '''
+    a = Agent({
+        "Hidden_Unit_Size": 300, 
+        "Layer_Count": 2, 
+        "Kernel_Size": [8, 8, 8, 2], 
+        "Stride_Length": [4,4,4,1]}, 
+        None)
+    '''
 
-    config = json.load(open("config.json"))
+    config = Config("config.json")
     env = Environment(config)
     population = make_population()    
 
-    for gen in range(config['Generations']):
+    for gen in range(config.Generations):
 
         # Occasionally mix population among workers
-        if gen != 0 and gen % config['Mix_Interval'] == 0:
+        if gen != 0 and gen % config.Mix_Interval == 0:
             population = mix_pop(population)
 
         # generate a list of candidates
@@ -184,12 +193,12 @@ if __name__ == '__main__':
 
             # creating an agent may fail if parameters suck!
             agent = Agent(traits, env)
-            agent.train(episode_count=config['Short_Train'])
+            agent.train(episode_count=config.Short_Train)
             fitness = agent.evaluate()
             candidates.append((fitness, traits))
 
         population = breed(candidates, len(population),
-                           p_mutate=config['Mutation_Prob'])
+                           p_mutate=config.Mutation_Prob)
 
     '''
     Here, select the best individual, and begin distributed training
