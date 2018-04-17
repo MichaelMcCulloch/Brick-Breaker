@@ -18,5 +18,7 @@
         "Sequence_Length" : 8,
         "Ignore_Up_To" : 4
     },
-    "Episode_Length_Max" : 125
+    "Episode_Length_Max" : 125,
+    "Frame_Skip_Count" : 4,
+    "Environment_Type" : "basic"
 }

@@ -63,6 +63,9 @@ class Config():
             self.Ignore_Up_To = self.Recurrence["Ignore_Up_To"]
             self.Episode_Length_Max = self.config["Episode_Length_Max"]
 
+            self.Frame_Skip_Count = self.config['Frame_Skip_Count']
+            self.Environment_Type = self.config['Environment_Type']
+
         
         
         
