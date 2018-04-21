@@ -6,7 +6,7 @@
         "Stride_Length_Max" : 4,
         "Num_Filter_Range" : [32, 256]
     },
-    "Population_Size": 5,
+    "Population_Size": 10,
     "Generations": 25,
     "Mix_Interval": 5,
     "Mutation_Prob": 0.8,

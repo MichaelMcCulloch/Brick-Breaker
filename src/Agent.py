@@ -14,7 +14,7 @@ class Agent():
         self.mainQ      = Q_Learner(60, 408, Hidden_Unit_Size, Layer_Count, Kernel_Size, Stride_Length, Num_Filter, 4, "MAIN")
         self.targetQ    = Q_Learner(60, 408, Hidden_Unit_Size, Layer_Count, Kernel_Size, Stride_Length, Num_Filter, 4, "TARGET")
 
-        self.memory = Replay_Buffer(config.Memory_Max_Bytes)
+        self.memory = Replay_Buffer(config.Memory_Max_Bytes, 10e3)
 
     def train(self, episode_count):
         pass

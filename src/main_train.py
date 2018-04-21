@@ -58,8 +58,8 @@ def make_population():
     n_layers = None
     if config.Search_Hidden_Units:
         low_NHU, high_NHU = config.Hidden_Unit_Range
-        rand_h_size = np.random.randint(low_NHU, high_NHU, pop_size)
-        toZip.append((config.key_HUS, rand_h_size))
+        rand_h_size = np.random.randint(low_NHU, high_NHU // 2, pop_size)
+        toZip.append((config.key_HUS, rand_h_size * 2))
 
     if config.Search_Conv_Layers:
         n_layers = config.Conv_Layers_Max
@@ -110,7 +110,7 @@ def mutate(individual):
     key = np.random.choice(list(new_member))
     if key == config.key_HUS:
         min = config.Hidden_Unit_Range[0]
-        max = config.Hidden_Unit_Range[1]
+        max = config.Hidden_Unit_Range[1] // 2
     if key == config.key_LC:
         min = config.Conv_Layers_Min
         max = config.Conv_Layers_Max + 1
@@ -139,6 +139,7 @@ def mutate(individual):
         newval = oldval
         while newval == oldval:
             newval = np.random.randint(min, max)
+        if key == config.key_HUS: newval *= 2
         new_member.update({key : newval})
     
     return new_member
@@ -169,7 +170,7 @@ def breed(gene_pool, target_size, p_mutate=0.8):
 
     new_pop = []
     gene_pool.sort(key=lambda p: p[0], reverse = True)
-    new_pop.extend(gene_pool[0:2])  # elitism
+    new_pop.extend(gene_pool[0:target_size//4])  # elitism
     while len(new_pop) < target_size:
         r = np.random.uniform()
         if r < p_mutate:

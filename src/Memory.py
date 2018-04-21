@@ -65,7 +65,8 @@ class Replay_Buffer():
 
 
     def __init__(self, max_bytes, ep_size):
-        self.tree = SumTree(max_bytes//ep_size)
+        
+        self.tree = SumTree(int(max_bytes) // int(ep_size))
         
     def _get_priority(self, error):
         return (error + self.e) ** self.a
