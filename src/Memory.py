@@ -63,22 +63,15 @@ class Replay_Buffer():
     e = 0.01  # epsilon ensures no transition has zero priority
     a = 0.6  # alpha determines the prioritization level. a = 0 is a uniform random sampling, a = 1 is priority only
 
-    self.tree = None
 
-    def __init__(self, max_bytes):
-        self.max_bytes = max_bytes
+    def __init__(self, max_bytes, ep_size):
+        self.tree = SumTree(max_bytes//ep_size)
         
     def _get_priority(self, error):
         return (error + self.e) ** self.a
 
     # accepts a numpy array of 6-tuples
     def add(self, error, sample):
-        #set the size of the tree on first addition, add() must be first operation
-        if self.tree == None:
-            ep_size = sys.getsizeof(sample) #in bytes
-            capacity = self.max_bytes / ep_size
-            self.tree = SumTree(capacity)
-
         p = self._get_priority(error)
         self.tree.add(p, sample)
 

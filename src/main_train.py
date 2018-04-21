@@ -10,7 +10,7 @@ import json
 
 from Config import Config
 from Agent import Agent
-from Environment import Environment
+import gym
 
 COMM = MPI.COMM_WORLD
 size = COMM.Get_size()
@@ -194,7 +194,8 @@ if __name__ == '__main__':
 
 
     config = Config("config.json")
-    env = Environment(config)
+    env = gym.make('Breakout-v0')
+    
     if config.Perform_GA:
         population = make_population()
 
