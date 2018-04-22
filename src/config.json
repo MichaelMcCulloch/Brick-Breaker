@@ -13,12 +13,16 @@
     "Memory_Max_Bytes" : 10e9,
     "Short_Train" : 10e5,
     "Long_Train" : 10e9,
+    "Annealing_Steps": 10e6,
+    "Noise": [1, 0.01],
     "Recurrence" : {
         "Batch_Size" : 32,
         "Sequence_Length" : 8,
-        "Ignore_Up_To" : 4
+        "Ignore_Up_To" : 4,
+        "Update_Frequency" : 5,
+        "Update_Speed_Tau" : 0.001
     },
     "Episode_Length_Max" : 125,
-    "Frame_Skip_Count" : 4,
-    "Environment_Type" : "basic"
+    "Frame_Skip_Count" : 1,
+    "Pretrain_Episodes" : 10e3
 }

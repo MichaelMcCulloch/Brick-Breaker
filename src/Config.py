@@ -56,15 +56,21 @@ class Config():
             self.Memory_Max_Bytes = self.config["Memory_Max_Bytes"]
             self.Short_Train = self.config["Short_Train"]
             self.Long_Train = self.config["Long_Train"]
+
+            self.Annealing_Steps = self.config["Annealing_Steps"]
+            self.Noise = self.config["Noise"]
+
             self.Recurrence = self.config["Recurrence"]
 
             self.Batch_Size = self.Recurrence["Batch_Size"]
             self.Sequence_Length = self.Recurrence["Sequence_Length"]
             self.Ignore_Up_To = self.Recurrence["Ignore_Up_To"]
-            self.Episode_Length_Max = self.config["Episode_Length_Max"]
+            self.Update_Frequency = self.Recurrence["Update_Frequency"]
+            self.Update_Speed_Tau = self.Recurrence["Update_Speed_Tau"]
 
+            self.Episode_Length_Max = self.config["Episode_Length_Max"]
             self.Frame_Skip_Count = self.config['Frame_Skip_Count']
-            self.Environment_Type = self.config['Environment_Type']
+            self.Pretrain_Episodes = self.config['Pretrain_Episodes']
 
         
         

@@ -6,7 +6,7 @@ import tensorflow.contrib.slim as slim
 class Q_Learner:
     def __init__(self, image_H, image_W, h_size, n_layer, k_dims, s_length, n_outputs, n_act, scope, learning_rate=0.001):
 
-        tf.reset_default_graph()
+        
         self.image_H = image_H
         self.image_W = image_W
         self.h_size = h_size
@@ -23,10 +23,10 @@ class Q_Learner:
         self.batch_size = tf.placeholder(tf.int32, shape=[], name='batch_size')
         self.trace_length = tf.placeholder(tf.int32, name='trace_length')
         self.dropout_p = tf.placeholder(tf.float32, name='dropout_p')
-        self.images = tf.placeholder(
-            tf.float32, shape=[None, None, self.image_H, self.image_W, 3], name='images')
-        self.all_images = tf.reshape(
-            self.images, [self.batch_size * self.trace_length, self.image_H, self.image_W, 3])
+        #self.scalarInput
+        self.images = tf.placeholder(tf.float32, shape=[None, self.image_H * self.image_W], name='images')
+        #self.imageIn
+        self.all_images = tf.reshape(self.images, [-1, self.image_H, self.image_W, 1])
 
         self._make_convolutional_layers()
         self._init_LSTM()
