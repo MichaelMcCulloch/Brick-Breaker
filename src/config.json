@@ -10,10 +10,10 @@
     "Generations": 25,
     "Mix_Interval": 5,
     "Mutation_Prob": 0.8,
-    "Memory_Max_Bytes" : 10e9,
-    "Short_Train" : 10e5,
-    "Long_Train" : 10e9,
-    "Annealing_Steps": 10e6,
+    "Memory_Max_Bytes" : 1e9,
+    "Short_Train" : 1e5,
+    "Long_Train" : 1e9,
+    "Annealing_Steps": 1e6,
     "Noise": [1, 0.01],
     "Recurrence" : {
         "Batch_Size" : 32,
@@ -24,5 +24,5 @@
     },
     "Episode_Length_Max" : 125,
     "Frame_Skip_Count" : 1,
-    "Pretrain_Episodes" : 10e3
+    "Pretrain_Episodes" : 1e1
 }

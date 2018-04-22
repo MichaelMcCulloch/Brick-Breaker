@@ -63,7 +63,6 @@ class Replay_Buffer():
     e = 0.01  # epsilon ensures no transition has zero priority
     a = 0.6  # alpha determines the prioritization level. a = 0 is a uniform random sampling, a = 1 is priority only
 
-
     def __init__(self, max_bytes, ep_size):
         
         self.tree = SumTree(int(max_bytes) // int(ep_size))
@@ -90,12 +89,11 @@ class Replay_Buffer():
             s = np.random.uniform(a, b)
             (idx, _, data) = self.tree.get(s)
             # choose a random segment from the episode.
-            point = np.random.uniform(0, len(data) + 1 - trace_length)
-
-            batch.append(data[point: point+trace_length])
+            point = np.random.randint(0, len(data) + 1 - trace_length)
+            batch.append(data[point : point+trace_length])
             indexes.append(idx)
         
-        batch = np.reshape(batch, [batch_size * trace_length, 6])
+        batch = np.reshape(batch, [batch_size * trace_length, 4])
     
         return (indexes, batch)
 

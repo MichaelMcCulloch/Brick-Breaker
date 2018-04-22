@@ -10,6 +10,8 @@ import json
 
 from Config import Config
 from Agent import Agent
+from Memory import Replay_Buffer
+from common import processState
 import gym
 
 COMM = MPI.COMM_WORLD
@@ -188,6 +190,9 @@ def breed(gene_pool, target_size, p_mutate=0.8):
                 (None, new_B))
     return new_pop
 
+def create_memory_buffer(env):
+    # random episodes to fill the buffer
+    memory = Replay_Buffer(config.Memory_Max_Bytes, 10e2)
     
 
 
@@ -196,7 +201,6 @@ if __name__ == '__main__':
 
     config = Config("config.json")
     env = gym.make('Breakout-v0')
-    
     if config.Perform_GA:
         population = make_population()
 
@@ -217,12 +221,13 @@ if __name__ == '__main__':
                     candidates.append(individual)
                     continue
 
-                # creating an agent may fail if parameters suck!
-                
+                # creating an agent may fail if parameters are incompatible with network!
                 agent = Agent(env, config, **traits)
-                print("Created agent with", traits)
+                
                 agent.train(episode_count=config.Short_Train)
+                exit()
                 fitness = agent.evaluate()
+                agent.delete()
                 candidates.append((np.random.uniform(), traits))
             
             population = breed(candidates, len(candidates),
