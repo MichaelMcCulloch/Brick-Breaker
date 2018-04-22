@@ -91,13 +91,15 @@ class Q_Learner:
         self.gamma = tf.placeholder(tf.float32, name='gamma')
         self.target_q = tf.placeholder(tf.float32, name='target_q', shape=[None, None])
         self.rewards = tf.placeholder(tf.float32, name='rewards', shape=[None, None])
-        self.actions = tf.placeholder(tf.float32, name='actions', shape=[None, None, self.n_act])
+        self.actions = tf.placeholder(tf.uint8, name='actions', shape=[None, None])
+        self.actions_one_hot = tf.one_hot(self.actions, 3, dtype=tf.float32)
         y = self.rewards + self.gamma * self.target_q
-        Qas = tf.reduce_sum(tf.one_hot(tf.argmax(self.actions, 2), self.n_act) * self.Q, 2)
+        Qas = tf.reduce_sum(tf.one_hot(tf.argmax(self.actions_one_hot, 2), self.n_act) * self.Q, 2)
         self.ignore_up_to = tf.placeholder(tf.int32, name='ignore_up_to')
         y = tf.slice(y, [0, self.ignore_up_to], [-1, -1])
         Qas = tf.slice(Qas, [0, self.ignore_up_to], [-1, -1])
         self.td_error = tf.square(y-Qas)
+        self.td_error_sum = tf.reduce_sum(self.td_error, 1)
         self.q_loss = tf.reduce_mean(self.td_error)
         self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.q_loss)
 

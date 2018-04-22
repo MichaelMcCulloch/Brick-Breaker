@@ -11,7 +11,7 @@ import json
 from Config import Config
 from Agent import Agent
 from Memory import Replay_Buffer
-from common import processState
+from common import processState, chunks
 import gym
 
 COMM = MPI.COMM_WORLD
@@ -21,13 +21,6 @@ name = MPI.Get_processor_name()
 
 config = None
 
-'''
-Break a list into equally sized Chunks
-'''
-def chunks(l, n):
-    """Yield successive n-sized chunks from l."""
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
 
 
 '''
