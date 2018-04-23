@@ -118,6 +118,8 @@ class Agent():
                 self.targetQ.rnn_state_in : state_train,
                 self.targetQ.dropout_p: 1
             }) 
+            
+            indexer = [[[i,j,Q1[i, j]] for j in range(0,SEQ_LENGTH)] for i in range(0, BATCH_SIZE)]
 
             Q2_New = []
             for a in range(0, BATCH_SIZE):
@@ -173,7 +175,9 @@ class Agent():
                     self.targetQ.rnn_state_in : state_train,
                     self.targetQ.dropout_p: 1
                 }) 
-
+                
+                indexer = [[[i,j,Q1[i, j]] for j in range(0,SEQ_LENGTH)] for i in range(0, BATCH_SIZE)]
+                
                 Q2_New = []
                 for a in range(0, BATCH_SIZE):
                     for b in range(0, SEQ_LENGTH):
