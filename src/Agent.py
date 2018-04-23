@@ -119,13 +119,14 @@ class Agent():
                 self.targetQ.dropout_p: 1
             }) 
             
-            indexer = [[[i,j,Q1[i, j]] for j in range(0,SEQ_LENGTH)] for i in range(0, BATCH_SIZE)]
+            #indexer = [[[i,j,Q1[i, j]] for j in range(0,SEQ_LENGTH)] for i in range(0, BATCH_SIZE)]
 
             Q2_New = []
             for a in range(0, BATCH_SIZE):
                 for b in range(0, SEQ_LENGTH):
                     Q2_New.append(Q2[a][b][Q1[a,b]])
-            
+            import pdb; pdb.set_trace()
+
             
             
             end_multiplier = -(training_batch[1][:, 4] - 1)   
@@ -176,8 +177,8 @@ class Agent():
                     self.targetQ.dropout_p: 1
                 }) 
                 
-                indexer = [[[i,j,Q1[i, j]] for j in range(0,SEQ_LENGTH)] for i in range(0, BATCH_SIZE)]
-                
+                #indexer = [[[i,j,Q1[i, j]] for j in range(0,SEQ_LENGTH)] for i in range(0, BATCH_SIZE)]
+
                 Q2_New = []
                 for a in range(0, BATCH_SIZE):
                     for b in range(0, SEQ_LENGTH):
