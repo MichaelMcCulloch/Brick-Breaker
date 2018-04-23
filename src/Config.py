@@ -73,3 +73,4 @@ class Config():
             self.Frame_Skip_Count   = self.config['Frame_Skip_Count']
             self.Pretrain_Episodes  = self.config['Pretrain_Episodes']
             self.Summary_Interval   = self.config['Summary_Interval']
+            self.Memory_Capacity    = self.config['Memory_Capacity']

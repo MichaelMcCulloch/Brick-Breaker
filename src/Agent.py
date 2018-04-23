@@ -21,7 +21,7 @@ class Agent():
         self.mainQ      = Q_Learner(IMG_H, IMG_W, self.h_size, Layer_Count, Kernel_Size, Stride_Length, Num_Filter, N_ACTIONS, "MAIN")
         self.targetQ    = Q_Learner(IMG_H, IMG_W, self.h_size, Layer_Count, Kernel_Size, Stride_Length, Num_Filter, N_ACTIONS, "TARGET")
 
-        self.memory  = Replay_Buffer(self.config.Memory_Max_Bytes, 1e3)
+        self.memory  = Replay_Buffer(int(self.config.Memory_Capacity))
         self.session = tf.Session()
 
         init = tf.global_variables_initializer()
@@ -29,8 +29,6 @@ class Agent():
         print("Created agent with", {'Hidden_Unit_Size': Hidden_Unit_Size, 'Layer_Count': Layer_Count, 'Kernel_Size': Kernel_Size, 'Stride_Length': Stride_Length, 'Num_Filter': Num_Filter})
     def _fill_memory(self):
         for i in range(int(self.config.Pretrain_Episodes)):
-            if i != 0 and i % 100 == 0:
-                print("Pre-Train Episode:", i)
             reward, ep = self.play_episode(random=True)
             self.memory.add(reward, ep) 
 
@@ -128,8 +126,11 @@ class Agent():
         trainables = tf.trainable_variables()
         targetOps = self.updateTargetGraph(trainables, self.config.Update_Speed_Tau)
 
+        print("Pre-Training")
+
         self._fill_memory()
         rList = []
+        print("Training for", episode_count, "episodes")
         for i in range(int(episode_count)):
             #play a trained episode
             rAll, ep = self.play_episode(epsilon=e, random=False)
@@ -162,7 +163,6 @@ class Agent():
             #periodically update target network
             if i != 0 and i % self.config.Update_Frequency == 0:
                 self.updateTarget(targetOps, self.session)
-                print("Updating Target Q-Network", i)
             
             #occasionally display a summary
             rList.append(rAll)

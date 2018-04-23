@@ -63,9 +63,9 @@ class Replay_Buffer():
     e = 0.01  # epsilon ensures no transition has zero priority
     a = 0.6  # alpha determines the prioritization level. a = 0 is a uniform random sampling, a = 1 is priority only
 
-    def __init__(self, max_bytes, ep_size):
+    def __init__(self, capacity):
         
-        self.tree = SumTree(int(max_bytes) // int(ep_size))
+        self.tree = SumTree(capacity)
         
     def _get_priority(self, error):
         return (error + self.e) ** self.a
