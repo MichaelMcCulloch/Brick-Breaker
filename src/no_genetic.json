@@ -1,13 +1,7 @@
 {
-    "Genetic_Parameters": {
-        "Hidden_Unit_Range" : [32, 512],
-        "Conv_Layers_Max" : 2,
-        "Kernel_Size_Max" : 8,
-        "Stride_Length_Max" : 4,
-        "Num_Filter_Range" : [32, 256]
-    },
-    "Population_Size": 2,
-    "Generations": 10,
+    "Genetic_Parameters": null,
+    "Population_Size": 10,
+    "Generations": 25,
     "Mix_Interval": 5,
     "Mutation_Prob": 0.8,
     "Memory_Max_Bytes" : 1e9,
@@ -26,7 +20,7 @@
     },
     "Episode_Length_Max" : 125,
     "Frame_Skip_Count" : 1,
-    "Pretrain_Episodes" : 1e3,
+    "Pretrain_Episodes" : 1e1,
     "Summary_Interval" : 100
 
 }

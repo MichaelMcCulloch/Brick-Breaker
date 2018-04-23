@@ -41,6 +41,10 @@ def mix_pop(population):
     new_pop = COMM.scatter(all_pop, root=0)
     return new_pop
 
+def find_best_member():
+    all_pop = COMM.gather(population, root=0)
+    if rank == 0:
+        all_pop = [b for val in all_pop for b in val]
 
 '''
 Generate the initial population. 
@@ -190,10 +194,9 @@ def create_memory_buffer(env):
 
 
 if __name__ == '__main__':
-
-
-    config = Config("config.json")
+    config = Config("no_genetic.json")
     env = gym.make('Breakout-v0')
+    best_traits = dict()
     if config.Perform_GA:
         population = make_population()
 
@@ -217,16 +220,13 @@ if __name__ == '__main__':
                 # creating an agent may fail if parameters are incompatible with network!
                 agent = Agent(env, config, **traits)
                 
-                agent.train(episode_count=config.Short_Train)
-                exit()
+                #agent.train(episode_count=config.Short_Train)
                 fitness = agent.evaluate()
                 agent.delete()
-                candidates.append((np.random.uniform(), traits))
+                candidates.append((fitness, traits))
             
             population = breed(candidates, len(candidates),
                             p_mutate=config.Mutation_Prob)
-                
-
-        '''
-        Here, select the best individual, and begin distributed training
-        '''
+        best = find_best_member()
+    agent = Agent(env, config)
+    agent.train(episode_count=config.Short_Train)

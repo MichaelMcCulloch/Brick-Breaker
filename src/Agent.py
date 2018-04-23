@@ -1,6 +1,7 @@
 import numpy as np
 import copy
 import cv2
+import csv
 
 from Network import Q_Learner, tf
 from Memory import Replay_Buffer
@@ -56,7 +57,7 @@ class Agent():
                     action = np.random.randint(0, N_ACTIONS)
                     out = get_rnn_state([self.mainQ.rnn_state_out])
                 else:
-                    action, rnn_state = get([self.mainQ.choice, self.mainQ.rnn_state_out])
+                    action, rnn_state = get_rnn_state([self.mainQ.choice, self.mainQ.rnn_state_out])
 
 
             screen_next, reward, done, lives = self.env.step(action)
@@ -115,6 +116,10 @@ class Agent():
         return td_error
 
     def train(self, episode_count):
+
+        log = open('log.csv', 'w')
+        log_writer = csv.writer(log, delimiter=',')
+
         BATCH_SIZE = self.config.Batch_Size
         SEQ_LENGTH = self.config.Sequence_Length
         START_E, END_E = self.config.Noise
@@ -167,7 +172,10 @@ class Agent():
             #occasionally display a summary
             rList.append(rAll)
             if i % self.config.Summary_Interval == 0:
-                print("Score", (i, np.mean(rList[-self.config.Summary_Interval:]),))
+                mean = np.mean(rList[-self.config.Summary_Interval:])
+                print("Score", (i, mean))
+                log_writer.writerow([i, mean])
+                log.flush
         
     def delete(self):
         self.session.close()
