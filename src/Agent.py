@@ -71,7 +71,7 @@ class Agent():
                 episode[-1][0][-1] = True
                 break
                 
-            episode.append(np.reshape(np.array([state.astype(np.uint8), action, reward, done]), [1, 4]))
+            episode.append(np.reshape(np.array([state.astype(np.uint8), action, reward, state_next.astype(np.uint8), done]), [1, 5]))
             state = state_next
         buffer_array = np.array(episode)
         episode = list(zip(buffer_array))
@@ -102,18 +102,39 @@ class Agent():
 
             #train on samples 
             print("Update on memory", i)
-            target_Q = self.session.run(self.targetQ.max_Q, feed_dict={
-                self.targetQ.batch_size: BATCH_SIZE,
+            state_train = (np.zeros([BATCH_SIZE, self.h_size]), np.zeros([BATCH_SIZE, self.h_size]))
+            #DOUBLE DQN:
+            Q1 = self.session.run(self.mainQ.choice, feed_dict={
+                self.mainQ.images: np.vstack(training_batch[1][:,3]/255.0),
+                self.mainQ.batch_size : BATCH_SIZE,
+                self.mainQ.trace_length: SEQ_LENGTH,
+                self.mainQ.rnn_state_in : state_train,
+                self.mainQ.dropout_p: 1
+            })
+            Q2 = self.session.run(self.targetQ.Q, feed_dict={
+                self.targetQ.images: np.vstack(training_batch[1][:,3]/255.0),
+                self.targetQ.batch_size : BATCH_SIZE,
                 self.targetQ.trace_length: SEQ_LENGTH,
-                self.targetQ.images: np.vstack(training_batch[1][:,0]/255.0),
-                self.targetQ.dropout_p : 1
-            })            
+                self.targetQ.rnn_state_in : state_train,
+                self.targetQ.dropout_p: 1
+            }) 
+
+            Q2_New = []
+            for a in range(0, BATCH_SIZE):
+                for b in range(0, SEQ_LENGTH):
+                    Q2_New.append(Q2[a][b][Q1[a,b]])
+            
+            
+            
+            end_multiplier = -(training_batch[1][:, 4] - 1)   
+            doubleQ = Q2_New
+            targetQ = doubleQ * end_multiplier
             _, td_error = self.session.run([self.mainQ.train_step, self.mainQ.td_error_sum], feed_dict={
                 self.mainQ.batch_size: BATCH_SIZE,
                 self.mainQ.trace_length: SEQ_LENGTH,
                 self.mainQ.ignore_up_to : 0,
                 self.mainQ.images: np.vstack(training_batch[1][:,0]/255.0),
-                self.mainQ.target_q: target_Q,
+                self.mainQ.target_q: np.reshape(targetQ,[BATCH_SIZE, SEQ_LENGTH]),
                 self.mainQ.gamma : 0.99,
                 self.mainQ.rewards: np.reshape(training_batch[1][:,2], [BATCH_SIZE, SEQ_LENGTH]),
                 self.mainQ.actions: np.reshape(training_batch[1][:,1], [BATCH_SIZE, SEQ_LENGTH]),
@@ -126,30 +147,49 @@ class Agent():
             
             #train on new episode
             print("Update on New", i)
-            print(ep)
             #shuffle new episode into chucks of size batch_size*seq_length
-            ep = np.reshape(ep, [-1, 4])
+            ep = np.reshape(ep, [-1, 5])
             eps = list(chunks(ep, SEQ_LENGTH))
             eps = eps[0:-1]
             np.random.shuffle(eps)
-            eps = np.reshape(np.array(eps), [-1, 4])
+            eps = np.reshape(np.array(eps), [-1, 5])
 
 
             eps = list(chunks(eps, SEQ_LENGTH*BATCH_SIZE))
-            print(eps)
             for x in eps[0:-1]:
-                target_Q = self.session.run(self.targetQ.max_Q, feed_dict={
-                    self.targetQ.batch_size: BATCH_SIZE,
+                state_train = (np.zeros([BATCH_SIZE, self.h_size]), np.zeros([BATCH_SIZE, self.h_size]))
+                #DOUBLE DQN:
+                Q1 = self.session.run(self.mainQ.choice, feed_dict={
+                    self.mainQ.images: np.vstack(x[:,3]/255.0),
+                    self.mainQ.batch_size : BATCH_SIZE,
+                    self.mainQ.trace_length: SEQ_LENGTH,
+                    self.mainQ.rnn_state_in : state_train,
+                    self.mainQ.dropout_p: 1
+                })
+                Q2 = self.session.run(self.targetQ.Q, feed_dict={
+                    self.targetQ.images: np.vstack(x[:,3]/255.0),
+                    self.targetQ.batch_size : BATCH_SIZE,
                     self.targetQ.trace_length: SEQ_LENGTH,
-                    self.targetQ.images: np.vstack(x[:,0]/255.0),
-                    self.targetQ.dropout_p : 1
-                })            
+                    self.targetQ.rnn_state_in : state_train,
+                    self.targetQ.dropout_p: 1
+                }) 
+
+                Q2_New = []
+                for a in range(0, BATCH_SIZE):
+                    for b in range(0, SEQ_LENGTH):
+                        Q2_New.append(Q2[a][b][Q1[a,b]])
+                
+                
+                
+                end_multiplier = -(x[:, 4] - 1)   
+                doubleQ = Q2_New
+                targetQ = doubleQ * end_multiplier
                 _, td_error = self.session.run([self.mainQ.train_step, self.mainQ.td_error_sum], feed_dict={
                     self.mainQ.batch_size: BATCH_SIZE,
                     self.mainQ.trace_length: SEQ_LENGTH,
                     self.mainQ.ignore_up_to : 0,
                     self.mainQ.images: np.vstack(x[:,0]/255.0),
-                    self.mainQ.target_q: target_Q,
+                    self.mainQ.target_q: np.reshape(targetQ,[BATCH_SIZE, SEQ_LENGTH]),
                     self.mainQ.gamma : 0.99,
                     self.mainQ.rewards: np.reshape(x[:,2], [BATCH_SIZE, SEQ_LENGTH]),
                     self.mainQ.actions: np.reshape(x[:,1], [BATCH_SIZE, SEQ_LENGTH]),

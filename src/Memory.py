@@ -93,7 +93,7 @@ class Replay_Buffer():
             batch.append(data[point : point+trace_length])
             indexes.append(idx)
         
-        batch = np.reshape(batch, [batch_size * trace_length, 4])
+        batch = np.reshape(batch, [batch_size * trace_length, 5])
     
         return (indexes, batch)
 
