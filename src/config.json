@@ -11,8 +11,9 @@
     "Mix_Interval": 5,
     "Mutation_Prob": 0.8,
     "Memory_Max_Bytes" : 1e9,
+    "Episode_Size" : 1e9,
     "Short_Train" : 1e5,
-    "Long_Train" : 1e9,
+    "Long_Train" : 1e10,
     "Annealing_Steps": 1e6,
     "Noise": [1, 0.01],
     "Recurrence" : {
@@ -24,5 +25,7 @@
     },
     "Episode_Length_Max" : 125,
     "Frame_Skip_Count" : 1,
-    "Pretrain_Episodes" : 1e1
+    "Pretrain_Episodes" : 1e1,
+    "Summary_Interval" : 1000
+
 }

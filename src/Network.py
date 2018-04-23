@@ -75,10 +75,10 @@ class Q_Learner:
         self.rnn_output = tf.reshape(rnn_output, [-1, self.h_size])
 
         self.stream_A, self.stream_V = tf.split(self.rnn_output, 2, 1)
-        self.AW = tf.Variable(tf.random_normal([self.h_size//2,4]))
-        self.VW = tf.Variable(tf.random_normal([self.h_size//2,1]))
+        self.AW         = tf.Variable(tf.random_normal([self.h_size//2,4]))
+        self.VW        = tf.Variable(tf.random_normal([self.h_size//2,1]))
         self.Advantage = tf.matmul(self.stream_A,self.AW)
-        self.Value = tf.matmul(self.stream_V,self.VW)
+        self.Value     = tf.matmul(self.stream_V,self.VW)
         
         self.salience = tf.gradients(self.Advantage,self.all_images)
         Q = self.Value + tf.subtract(self.Advantage,tf.reduce_mean(self.Advantage,axis=1,keep_dims=True))
