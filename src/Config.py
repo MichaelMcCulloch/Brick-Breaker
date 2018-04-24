@@ -49,10 +49,12 @@ class Config():
                 if self.Search_Hidden_Units or self.Search_Conv_Layers or self.Search_Kernel_Size or self.Search_Stride_Length or self.Search_Num_Filters:
                     self.Perform_GA = True
 
-            self.Population_Size  = self.config['Population_Size']
-            self.Generations      = self.config['Generations']
-            self.Mix_Interval     = self.config['Mix_Interval']
-            self.Mutation_Prob    = self.config['Mutation_Prob']
+            if self.Perform_GA:
+                self.Population_Size  = self.config['Population_Size']
+                self.Generations      = self.config['Generations']
+                self.Mix_Interval     = self.config['Mix_Interval']
+                self.Mutation_Prob    = self.config['Mutation_Prob']
+                
             self.Memory_Max_Bytes = self.config['Memory_Max_Bytes']
             self.Episode_Size     = self.config['Episode_Size']
             self.Short_Train      = self.config['Short_Train']
@@ -71,6 +73,6 @@ class Config():
 
             self.Episode_Length_Max = self.config['Episode_Length_Max']
             self.Frame_Skip_Count   = self.config['Frame_Skip_Count']
-            self.Pretrain_Episodes  = self.config['Pretrain_Episodes']
             self.Summary_Interval   = self.config['Summary_Interval']
             self.Memory_Capacity    = self.config['Memory_Capacity']
+            self.Save_Interval      = self.config['Save_Interval']

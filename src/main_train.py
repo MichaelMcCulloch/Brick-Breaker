@@ -6,7 +6,6 @@ Parallel Hello World
 from mpi4py import MPI
 import numpy as np
 import sys
-import json
 
 from Config import Config
 from Agent import Agent
@@ -228,5 +227,5 @@ if __name__ == '__main__':
             population = breed(candidates, len(candidates),
                             p_mutate=config.Mutation_Prob)
         best = find_best_member()
-    agent = Agent(env, config)
-    agent.train(episode_count=config.Short_Train)
+    agent = Agent(env, config, save=True)
+    agent.train(episode_count=config.Long_Train)

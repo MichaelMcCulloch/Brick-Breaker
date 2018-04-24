@@ -11,14 +11,15 @@ import sys
 
 
 class Agent():
-    def __init__(self, env, config, Hidden_Unit_Size=300, Layer_Count=2, Kernel_Size=[8, 4], Stride_Length=[4, 2], Num_Filter=[32, 64], save = False):
+
+    def __init__(self, env, config, Hidden_Unit_Size=300, Layer_Count=2, Kernel_Size=[8, 4], Stride_Length=[4, 2], Num_Filter=[32, 64], save = False, path = None):
         tf.reset_default_graph()
         
         self.env    = env
         self.config = config
         self.save   = save
         self.h_size = Hidden_Unit_Size
-        
+
         self.mainQ      = Q_Learner(IMG_H, IMG_W, self.h_size, Layer_Count, Kernel_Size, Stride_Length, Num_Filter, N_ACTIONS, "MAIN")
         self.targetQ    = Q_Learner(IMG_H, IMG_W, self.h_size, Layer_Count, Kernel_Size, Stride_Length, Num_Filter, N_ACTIONS, "TARGET")
 
@@ -27,13 +28,22 @@ class Agent():
 
         init = tf.global_variables_initializer()
         self.session.run(init)
-        print("Created agent with", {'Hidden_Unit_Size': Hidden_Unit_Size, 'Layer_Count': Layer_Count, 'Kernel_Size': Kernel_Size, 'Stride_Length': Stride_Length, 'Num_Filter': Num_Filter})
+        self.desc = {'Hidden_Unit_Size': Hidden_Unit_Size, 'Layer_Count': Layer_Count, 'Kernel_Size': Kernel_Size, 'Stride_Length': Stride_Length, 'Num_Filter': Num_Filter}
+        self.ID =  '_'.join([str(a) for a in [Hidden_Unit_Size, Layer_Count, Kernel_Size, Stride_Length, Num_Filter]]).replace('[', '(').replace(']',')')
+        print("Created agent with", self.desc)
+        self.saver = tf.train.Saver()
+        if path != None:
+            self.saver.restore(self.session, path)
+    
     def _fill_memory(self):
-        for i in range(int(self.config.Pretrain_Episodes)):
+        episodes = int(self.config.Memory_Capacity)
+        for i in range(episodes):
+            if i != 0 and i % (episodes // 10) == 0:
+                print("%"+str(100 * i/episodes))
             reward, ep = self.play_episode(random=True)
             self.memory.add(reward, ep) 
 
-    def play_episode(self, epsilon=0.0, random = True):
+    def play_episode(self, epsilon=0.0, random = True, render = False):
         episode = []
         screen = self.env.reset()
         state = processState(screen)
@@ -59,14 +69,16 @@ class Agent():
                 else:
                     action, rnn_state = get_rnn_state([self.mainQ.choice, self.mainQ.rnn_state_out])
 
-
+            if render:
+                self.env.render()
             screen_next, reward, done, lives = self.env.step(action)
             state_next = processState(screen_next)
             rAll += reward
 
-            if lives['ale.lives'] != 5:
-                episode[-1][0][-1] = True
-                break
+            if not render:
+                if lives['ale.lives'] != 5 :
+                    episode[-1][0][-1] = True
+                    break
                 
             episode.append(np.reshape(np.array([state.astype(np.uint8), action, reward, state_next.astype(np.uint8), done]), [1, 5]))
             state = state_next
@@ -119,6 +131,8 @@ class Agent():
 
         log = open('log.csv', 'w')
         log_writer = csv.writer(log, delimiter=',')
+        log_writer.writerow(["Episode", "MeanScore", "Epsilon"])
+
 
         BATCH_SIZE = self.config.Batch_Size
         SEQ_LENGTH = self.config.Sequence_Length
@@ -171,11 +185,15 @@ class Agent():
             
             #occasionally display a summary
             rList.append(rAll)
-            if i % self.config.Summary_Interval == 0:
+            if i != 0 and i % self.config.Summary_Interval == 0:
                 mean = np.mean(rList[-self.config.Summary_Interval:])
-                print("Score", (i, mean))
-                log_writer.writerow([i, mean])
-                log.flush
+                print("Score", (i, mean, e))
+                log_writer.writerow([i, mean, e])
+                log.flush()
+
+            if self.save and i % self.config.Save_Interval == 0:
+                save_path = self.saver.save(self.session, "./models/" + self.ID + '.ckpt')
+                print("Model saved in path %s" % save_path)
         
     def delete(self):
         self.session.close()

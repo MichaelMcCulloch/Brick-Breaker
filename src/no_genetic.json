@@ -1,15 +1,15 @@
 {
     "Genetic_Parameters": null,
-    "Population_Size": 10,
-    "Generations": 25,
+    "Population_Size": 2,
+    "Generations": 10,
     "Mix_Interval": 5,
     "Mutation_Prob": 0.8,
     "Memory_Max_Bytes" : 1e9,
     "Episode_Size" : 1e9,
-    "Memory_Capacity" : 1e5,
+    "Memory_Capacity" : 1e4,
     "Short_Train" : 1e5,
     "Long_Train" : 1e10,
-    "Annealing_Steps": 1e6,
+    "Annealing_Steps": 1e4,
     "Noise": [1, 0.01],
     "Recurrence" : {
         "Batch_Size" : 32,
@@ -20,7 +20,7 @@
     },
     "Episode_Length_Max" : 125,
     "Frame_Skip_Count" : 1,
-    "Pretrain_Episodes" : 1e1,
-    "Summary_Interval" : 100
+    "Summary_Interval" : 100,
+    "Save_Interval": 10000
 
 }
