@@ -54,9 +54,7 @@ class Config():
                 self.Generations      = self.config['Generations']
                 self.Mix_Interval     = self.config['Mix_Interval']
                 self.Mutation_Prob    = self.config['Mutation_Prob']
-                
-            self.Memory_Max_Bytes = self.config['Memory_Max_Bytes']
-            self.Episode_Size     = self.config['Episode_Size']
+
             self.Short_Train      = self.config['Short_Train']
             self.Long_Train       = self.config['Long_Train']
 

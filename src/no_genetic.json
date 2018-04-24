@@ -6,7 +6,7 @@
     "Mutation_Prob": 0.8,
     "Memory_Max_Bytes" : 1e9,
     "Episode_Size" : 1e9,
-    "Memory_Capacity" : 1e4,
+    "Memory_Capacity" : 1e2,
     "Short_Train" : 1e5,
     "Long_Train" : 1e10,
     "Annealing_Steps": 1e4,

@@ -30,20 +30,27 @@ def mix_pop(population):
     
     all_pop = COMM.gather(population, root=0)
     
-    
+    print("MIXING")
     if rank == 0:
         # flatten gathered list of lists
         all_pop = [b for val in all_pop for b in val]
+        print(all_pop[0])
         np.random.shuffle(all_pop)                 # shuffle population
         # chunk it for transmission
         all_pop = list(chunks(all_pop, len(all_pop)//size))
     new_pop = COMM.scatter(all_pop, root=0)
     return new_pop
 
-def find_best_member():
+def find_best_member(population):
     all_pop = COMM.gather(population, root=0)
     if rank == 0:
         all_pop = [b for val in all_pop for b in val]
+        all_pop.sort(key=lambda p: p[0], reverse = True)
+        best = all_pop[0]
+    else:
+        best = None
+    best = COMM.bcast(best, root=0)
+    return best
 
 '''
 Generate the initial population. 
@@ -186,14 +193,8 @@ def breed(gene_pool, target_size, p_mutate=0.8):
                 (None, new_B))
     return new_pop
 
-def create_memory_buffer(env):
-    # random episodes to fill the buffer
-    memory = Replay_Buffer(config.Memory_Max_Bytes, 10e2)
-    
-
-
 if __name__ == '__main__':
-    config = Config("no_genetic.json")
+    config = Config("config.json")
     env = gym.make('Breakout-v0')
     best_traits = dict()
     if config.Perform_GA:
@@ -219,13 +220,17 @@ if __name__ == '__main__':
                 # creating an agent may fail if parameters are incompatible with network!
                 agent = Agent(env, config, **traits)
                 
-                #agent.train(episode_count=config.Short_Train)
+                agent.train(episode_count=config.Short_Train)
                 fitness = agent.evaluate()
                 agent.delete()
                 candidates.append((fitness, traits))
-            
+
             population = breed(candidates, len(candidates),
                             p_mutate=config.Mutation_Prob)
-        best = find_best_member()
-    agent = Agent(env, config, save=True)
-    agent.train(episode_count=config.Long_Train)
+        best = find_best_member(candidates)
+        print("Best parameters Found =", best[1], "with fitness", best[0])
+    
+    if rank == 0:
+        traits = best[1]
+        agent = Agent(env, config, **traits ,save=True)
+        agent.train(episode_count=config.Long_Train)
