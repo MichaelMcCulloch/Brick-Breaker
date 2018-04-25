@@ -75,7 +75,7 @@ class Replay_Buffer():
         p = self._get_priority(error)
         self.tree.add(p, sample)
 
-    # returns a list of indexes, and a list of episodes. ([int], [[(s, f, a, r, sp, d)]])
+    # returns a list of indexes, and a list of episodes. ([int], [[(s, a, r, sp, d)]])
     def sample(self, batch_size, trace_length):
         batch = list()
         indexes = list()

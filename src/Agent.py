@@ -159,32 +159,30 @@ class Agent():
             #get a sample
             training_batch = self.memory.sample(BATCH_SIZE, SEQ_LENGTH)
             self.memory.add(rAll, ep)
+            if len(ep) % SEQ_LENGTH == 0:
+                epP = np.reshape(ep, [-1, 5])
+            else:
+                epP = np.reshape(ep[:-(len(ep) % SEQ_LENGTH)], [-1, 5])
+            combined_experience = np.concatenate((training_batch[1], epP), 0)
+            b_size = combined_experience.shape[0]//SEQ_LENGTH
+
+            
+
+
+            
 
             #train on samples             
-            td_error = self._train_batch(training_batch[1], BATCH_SIZE, SEQ_LENGTH)
-
+            td_error = self._train_batch(combined_experience, b_size, SEQ_LENGTH)
             #update memory with new td_error
-            for idx, err in zip(training_batch[0], td_error):
+            for idx, err in zip(training_batch[0], td_error[:BATCH_SIZE]):
                 self.memory.update(idx, err)
-            
-            #train on new episode
-            #shuffle new episode into chucks of size batch_size*seq_length
-            ep = np.reshape(ep, [-1, 5])
-            eps = list(chunks(ep, SEQ_LENGTH))
-            eps = eps[0:-1]
-            np.random.shuffle(eps)
-            eps = np.reshape(np.array(eps), [-1, 5])
-
-            eps = list(chunks(eps, SEQ_LENGTH*BATCH_SIZE))
-            for x in eps[0:-1]:
-                self._train_batch(x, BATCH_SIZE, SEQ_LENGTH)
 
             #periodically update target network
             if i != 0 and i % self.config.Update_Frequency == 0:
                 self.updateTarget(targetOps, self.session)
             
             #occasionally display a summary
-            rList.append(rAll)
+            self.rList.append(rAll)
             if i != 0 and i % self.config.Summary_Interval == 0:
                 mean = np.mean(self.rList[-self.config.Summary_Interval:])
                 print("Score", (i, mean, e))

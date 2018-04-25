@@ -50,7 +50,7 @@ def find_best_member(population):
     else:
         best = None
     best = COMM.bcast(best, root=0)
-    return best
+    return best[1]
 
 '''
 Generate the initial population. 
@@ -194,7 +194,7 @@ def breed(gene_pool, target_size, p_mutate=0.8):
     return new_pop
 
 if __name__ == '__main__':
-    config = Config("config.json")
+    config = Config("no_genetic.json")
     env = gym.make('Breakout-v0')
     best_traits = dict()
     if config.Perform_GA:
@@ -227,10 +227,10 @@ if __name__ == '__main__':
 
             population = breed(candidates, len(candidates),
                             p_mutate=config.Mutation_Prob)
-        best = find_best_member(candidates)
+        best_traits = find_best_member(candidates)
         print("Best parameters Found =", best[1], "with fitness", best[0])
     
     if rank == 0:
-        traits = best[1]
+        traits = best_traits
         agent = Agent(env, config, **traits ,save=True)
         agent.train(episode_count=config.Long_Train)
