@@ -148,7 +148,7 @@ class Agent():
         print("Pre-Training")
 
         self._fill_memory()
-        rList = []
+        self.rList = []
         print("Training for", episode_count, "episodes")
         for i in range(int(episode_count)):
             #play a trained episode
@@ -186,7 +186,7 @@ class Agent():
             #occasionally display a summary
             rList.append(rAll)
             if i != 0 and i % self.config.Summary_Interval == 0:
-                mean = np.mean(rList[-self.config.Summary_Interval:])
+                mean = np.mean(self.rList[-self.config.Summary_Interval:])
                 print("Score", (i, mean, e))
                 log_writer.writerow([i, mean, e])
                 log.flush()
@@ -200,8 +200,8 @@ class Agent():
         self.memory = None
 
 
-    def evaluate(self, num_tests=5):
-        return np.random.uniform()
+    def evaluate(self):
+        return np.mean(self.rList)
 
         
     #These functions allows us to update the parameters of our target network with those of the primary network.
