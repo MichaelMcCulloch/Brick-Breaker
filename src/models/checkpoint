@@ -1,0 +1,2 @@
+model_checkpoint_path: "300_2_(8, 4)_(4, 2)_(32, 64).ckpt"
+all_model_checkpoint_paths: "300_2_(8, 4)_(4, 2)_(32, 64).ckpt"

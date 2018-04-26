@@ -127,6 +127,8 @@ class Agent():
 
         return td_error
 
+
+
     def train(self, episode_count):
 
         log = open('log.csv', 'w')
@@ -153,26 +155,16 @@ class Agent():
         for i in range(int(episode_count)):
             #play a trained episode
             rAll, ep = self.play_episode(epsilon=e, random=False)
+
+            
             if e >= END_E: e -= step_drop
-            
-            
+
             #get a sample
             training_batch = self.memory.sample(BATCH_SIZE, SEQ_LENGTH)
             self.memory.add(rAll, ep)
-            if len(ep) % SEQ_LENGTH == 0:
-                epP = np.reshape(ep, [-1, 5])
-            else:
-                epP = np.reshape(ep[:-(len(ep) % SEQ_LENGTH)], [-1, 5])
-            combined_experience = np.concatenate((training_batch[1], epP), 0)
-            b_size = combined_experience.shape[0]//SEQ_LENGTH
-
-            
-
-
-            
 
             #train on samples             
-            td_error = self._train_batch(combined_experience, b_size, SEQ_LENGTH)
+            td_error = self._train_batch(training_batch[1], BATCH_SIZE, SEQ_LENGTH)
             #update memory with new td_error
             for idx, err in zip(training_batch[0], td_error[:BATCH_SIZE]):
                 self.memory.update(idx, err)

@@ -17,17 +17,83 @@
     \thispagestyle{empty}
 
     \section{Abstract}
+    \paragraph{}In this paper I build a Deep Q-Learner, and task it with mastering the game of breakout. I make several modifications to the vanilla Deep Q-Learner, such as Dueling, Double DQN, and Combined and Prioritized Experience Replay. Ultimately, the agent will fail at it's task for a variety of reasons. I will explore each of the additions in depth, and discuss possible reasons for the agents' failure. I had planned several other additions to the agent, such as adding parameter noise, distributing the learning task, frame skipping, and training it on Doom. Due to time constraints, and various failures of the agent, these were not implemented.
+
     \section{Introduction}
+    \paragraph{}Deep Reinforcement Learning agents have gained popularity in recent years due to their robustness and flexibility over a variety of tasks. These tasks range from playing games, manipulating a robotic arm or figure, and even predicting the weather. Initially, I believed this meant training a reinforcement agent on brick breaker would be a straightforward task. 
+
         \subsection{Deep Q-Learner}
+            \paragraph{}Training a reinforcement learning agent has been most successful when training directly from game states represented only by the pixels on the screen~\cite{DBLP:journals/corr/MnihKSGAWR13}
+
+            \subsection{Recurrent Learner}
+                \paragraph{}The majority of game environments include information that is temporally dependent. Hence a game state can only be understood as a sequence of game images~\cite{DBLP:journals/corr/HausknechtS15}
+
+                \paragraph{}The first fully connected layer in a traditional Deep Q-Learner may be replaced with an LSTM produces the best results~\cite{DBLP:journals/corr/HausknechtS15}
+                
+
             \subsubsection{Prioritized Experience Replay}
+                \paragraph{}Deep learning architectures are at their core statistical inference machines. Statistical inference machines require the i.i.d assumption. That is that data samples are independent of each other and that the distribution of the data samples remains constant.~\cite{DBLP:journals/corr/MnihKSGAWR13} 
+
+                \paragraph{}As the agent improves at the task, it's behaviour in the environment will change. ~\cite{DBLP:journals/corr/MnihKSGAWR13}
+
+                \paragraph{}The transitions that yield the greatest reward are the ones we want our agent to learn, hence these transitions are more valuable than transitions in which nothing happened.~\cite{DBLP:journals/corr/SchaulQAS15}
+                
+                \paragraph{}Rewards in reinforcement learning are sparse. That is there are a great many transitions in which the agent does not see a reward. These transitions provide little useful information to the agent about the effect it's actions had on the environment~\cite{DBLP:journals/corr/SchaulQAS15}
+
+                \paragraph{}Because the network converges slowly, the error rate on a given experience shrink slowly. Pure greedy prioritization puts the focus on high error transitions. Hence transitions which produced a large error initially are played repeatedly, while transitions which produced small error may never be seen again. The initially large error is likely produced by the network performing a large amount of random actions, having a poor policy, or some combination thereof.~\cite{DBLP:journals/corr/SchaulQAS15} This is overcome by biasing the greedy sampling toward a uniform sampling policy.
+
+                \paragraph{}We would ideally like the agent to learn an improved policy as quickly as possible. Because the replay buffer replaces old episoded with new ones, a larger replay buffer increases the window for which an episode may be sampled, causing transitions to linger. These older episodes bias the agent toward outdated policys.~\cite{DBLP:journals/corr/abs-1712-01275}
+
+                \paragraph{}Combined experience replay can be viewed as a special case of prioritized experience replay, where the priority is placed on new episodes.~\cite{DBLP:journals/corr/abs-1712-01275} Both transitions from the replay buffer and transitions from the newest sample are used to update the network at every time step.
+
+
             \subsubsection{Double Deep Q-Leaning}
+                \paragraph{} The Q-Learning Bellman update equation is as follows:
+                $$
+                    Q_m(s, a) \leftarrow r + \gamma max_a Q_t(s', a')
+                $$
+                where $m, t$ are the Q-Values obtained from the primary and target networks, respectively, $s$ and $a$ are the current state and action, $s'$ is the next state, $a'$ is the optimal action in the next state, $r$ is the reward, and $\gamma$ is the discount factor.
+                \paragraph{}Q-Learning has a tendency to overestimate the value of actions because of that maximization step.~\cite{DBLP:journals/corr/HasseltGS15}
+
             \subsubsection{Dueling Networks}
-        % How does it work for me?
+                
+                
+                \paragraph{}There may be many transitions in which the choice of action does not matter. We want to learn the network to learn the best policy evaluation even in the presence of many similar valued actions.~\cite{DBLP:journals/corr/WangFL15}
+
+                \paragraph{}We can learn the value function V(S) and the advantage function A(s,a) separately by splitting the stream from the last layer into value and advantage stream~\cite{DBLP:journals/corr/WangFL15}
+
+                \paragraph{}The value function measures how good a certain state is to be in. The Q function measures the value of choosing an action in this state. The advantage function can be obtained by $$ A(s,a) = Q(s, a) - V(a) $$ The advantage function measures the relative importance of each action.~\cite{DBLP:journals/corr/WangFL15}
+                
         \subsection{Genetic Algorithm}
-    \section{Related Work}
+            paragraph{} Building the agent is half the battle. The other half is finding the right hyperparameters. Hyperparameters such as the number convolutional layers and their shape, as well as the number of units in the hidden layer are domain specific. Reinforcement learning is not as prone to overfitting as prediction learning, due to the nature of the task. However, a more complex task seems to warrent a more complex network. A simple task, a simpler network. These parameters are often decided upon by experienced data engineers. I am not one of those. I believed it would be possible to root out the optimal hyperparameters by treating the network as a sort of organism. 
+            \subsubsection{Fitness}
+                We want to find the optimal shape of the network before committing to a full training session. We don't neccessarily need the agent to perform well, just better than the others. So each agent shape is trained for a small number of episodes. The fitness is obtained by taking the average score over the whole short training session. An agent that has begun to discover how to play ought to produce slightly higher averages.
+            \subsubsection{Parameters}
+                The optimal agent shape can be searched for the number hidden units in the LSTM and the number of convolutional layers, and the kernel size, stride length, and number of filters at each level. 
+            \subsubsection{Mutation}
+                By default mutation is performed with $p_{mut}= 80\%$ probability. The value to be mutated is chosen uniformly at random. Each value has a range which can be specified and is set to a new random value within that range.
+            \subsubsection{Crossover}
+                Crossover is performed with $p_{cross} = 1- p_{mut}$. Any of the values can be chosen, with each being chosen uniformly at random. Fewer than all values, and at least one are guaruneed to be chosen. Chosen values are exchanged,to produce 2 unique outputs. One of these is chosen at random to be added to the new population.
+            \subsubsection{Selection}
+                Individuals are selected for reproduction according to a roulette wheel. The best 25\% of the initial population is kept.
+            \subsubsection{Distribution}
+                This genetic algorithm can be distributed accross many machines, with each machine choosing it's own initial population and working on multiple independent populations. Every N steps, the populations from all machines is gathered, shuffled, and redistributed. By default N = 5.
+
     \section{Training}
-    \section{Evaluation}
+        Training proceeds as follows.
+        \begin{enumerate}
+            \item Fill the replay buffer completely. We first need experiences to sample from. These experiences are generated entirely randomly. At each step the state, action taken, the reward obtained, and the next step are recorded. An episode is a series of such steps, and ends when the agent loses a life, or completes the map
+            \item Sample $S$ = $BATCH\_SIZE$ episodes, each of length $SEQ\_LENGTH$ from the replay buffer.
+            \item Play an episode $E$ using actions generated by the network, and add this episode to the replay buffer.
+            \item Train the network on $S \cup E$
+            \item If $UPDATE\_FREQ$ training steps have been played, increment the target network parameters toward the primary network parameters
+            \item Repeat 2 until convergence
+        \end{enumerate} 
     \section{Discussion}
+    The network failed to converge to an optimal solution, and I did not have sufficient time to explore the causes. I have several guesses as to what is causing it to fail.
+    
+    The traditional method of training involves making a single step and then training the agent on the sample plus that one transition. I had modified this as I assumed that a series of on policy steps would be at least as useful as a single transition. On reflection, this likely causes the distribution in the replay buffer to change too quickly. 
+
 
     \bibliography{bibtex} 
     \bibliographystyle{ieeetr}
