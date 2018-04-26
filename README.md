@@ -13,4 +13,4 @@ As training progresses, the agent saves copies of itself named with it's hyperpa
 % mpirun -pernode -hostfile ./machinefile python3 ./main_train.py
 
 ### Evaluation
-% python3 ./main_play.py <path/to/model> <number of games>
+% python3 ./main_play.py path/to/model> numberOfGames
