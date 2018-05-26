@@ -1,4 +1,4 @@
-# DistributedDoomSlayer
+# Brick Breaker
 ## Python 3.6 Dependencies
 1. numpy
 2. cv2
